@@ -5,7 +5,7 @@
 #!/bin/bash
 
 #Exit immediately if a command exits with a non-zero status.
-sudo set -e
+set -e
 
 #Apt-get updates and installs
 sudo apt-get update
@@ -31,10 +31,10 @@ sudo sh -c "curl -L https://raw.githubusercontent.com/docker/compose/${COMPOSE_V
 # Criando Swap file
 #
 
-fallocate -l 2G /swapfile
-chmod 600 /swapfile
-mkswap /swapfile
-swapon /swapfile
+sudo fallocate -l 2G /swapfile
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
 
 
 
@@ -58,24 +58,6 @@ if has("autocmd")
 au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
 endif
 EOF
-
-
-#
-# Profile alias with sudo
-#
-
-sudo sed -i '/force_color_prompt=yes/s/^#//g' /root/.bashrc
-
-sudo cat << EOF >> /root/.bashrc
-alias ls='ls -FlhAv --color=auto'
-alias lt='ls -FlhAt --color=auto'
-alias ltr='ls -FlhAtr --color=auto'
-
-export PS1="\[\033[36m\]\u\[\033[m\]@\[\033[32m\]\h:\[\033[33;1m\]\w\[\033[m\]\$ "
-export CLICOLOR=1
-export LSCOLORS=ExFxBxDxCxegedabagacad
-EOF
-
 
 #
 # Profile alias local user

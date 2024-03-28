@@ -11,6 +11,7 @@ set -e
 sudo apt-get update
 sudo apt-get install -y wget git curl vim
 
+# alteração
 
 # Install Docker
 sudo wget -qO- https://get.docker.com/ | sh

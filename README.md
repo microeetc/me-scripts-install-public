@@ -1,6 +1,8 @@
 # me-curl-install-scripts
 
-Scripts para instalação automática via curl
+Scripts para configuração automática via curl
+
+# Update 28/03
 
 # Comandos / Arquivos
 - wget -qO- https://microeetc.com.br/_ | sh

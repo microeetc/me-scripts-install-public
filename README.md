@@ -3,6 +3,7 @@
 Scripts para configuração automática via curl
 
 # Update 28/03
+# Update 28/03
 
 # Comandos / Arquivos
 - wget -qO- https://microeetc.com.br/_ | sh

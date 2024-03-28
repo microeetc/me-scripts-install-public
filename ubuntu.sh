@@ -8,6 +8,7 @@ apt-get install -y wget git curl vim htop iftop
 
 
 # Criando Swap file
+echo "Configurações de Swap"
 dd if=/dev/zero bs=1M count=2048 of=/mnt/2GiB.swap
 chmod 600 /mnt/2GiB.swap
 mkswap /mnt/2GiB.swap
@@ -65,4 +66,18 @@ alias ltr='ls -FlhAtr --color=auto'
 export PS1="\[\033[36m\]\u\[\033[m\]@\[\033[32m\]\h:\[\033[33;1m\]\w\[\033[m\]\$ "
 export CLICOLOR=1
 export LSCOLORS=ExFxBxDxCxegedabagacad
+
+# don't put duplicate lines in the history. See bash(1) for more options
+# ... or force ignoredups and ignorespace
+export HISTCONTROL=ignoredups:ignorespace
+
+# append to the history file, don't overwrite it
+shopt -s histappend
+
+# for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
+export HISTSIZE=3000
+export HISTFILESIZE=20000
+
+# add timestamp to history command output
+export HISTTIMEFORMAT="%F %T "
 EOF

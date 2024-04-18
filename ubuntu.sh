@@ -1,4 +1,7 @@
 #!/bin/bash
+#
+# Instalação: wget -qO- https://raw.githubusercontent.com/microeetc/me-scripts-install-public/master/ubuntu.sh | sh
+#
 #Exit immediately if a command exits with a non-zero status.
 set -e
 

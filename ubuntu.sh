@@ -4,7 +4,7 @@ set -e
 
 #Apt-get updates and installs
 apt-get update
-apt-get install -y wget git curl vim htop iftop
+apt-get install -y wget git curl vim htop iftop sudo
 
 
 # Criando Swap file
@@ -54,7 +54,6 @@ endif
 EOF
 
 
-#
 # Profile alias local user
 sed -i '/force_color_prompt=yes/s/^#//g' ~/.bashrc
 

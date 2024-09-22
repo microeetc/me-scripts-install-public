@@ -20,14 +20,24 @@ echo '/mnt/2GiB.swap swap swap defaults 0 0' | tee -a /etc/fstab
 
 
 # Configurações do uso do swapp
+# O parâmetro swappiness controla a tendência do kernel de mover processos da memória RAM para a swap. Um valor mais baixo faz com que o sistema use menos swap e mantenha mais dados na RAM.
+# Alterar valor :  sudo sed -i 's/^vm.swappiness=.*/vm.swappiness=20/' /etc/sysctl.conf && sysctl -p
 cat /proc/sys/vm/swappiness
-cat /proc/sys/vm/vfs_cache_pressure
-sysctl vm.swappiness=10
-sysctl vm.vfs_cache_pressure=50
-
+sysctl vm.swappiness=20
 cat << EOF >> /etc/sysctl.conf
-vm.swappiness=10
-vm.vfs_cache_pressure=50
+vm.swappiness=20
+EOF
+
+# O vfs_cache_pressure determina com que frequência o kernel deve liberar a memória usada para cache de inodes e dentries (estruturas que representam arquivos e diretórios no sistema de arquivos).
+# Valor Padrão  :  O valor padrão é 100, o que significa que o kernel trata a memória usada para cache de VFS e a memória usada para pagecache de forma igual.
+# Valores Altos :  Valores acima de 100 fazem com que o kernel libere a memória de cache de VFS mais agressivamente. Isso pode ser útil em sistemas com pouca memória, mas pode reduzir o desempenho ao acessar arquivos e diretórios frequentemente.
+# Valores Baixos:  Valores abaixo de 100 fazem com que o kernel mantenha mais memória para cache de VFS, o que pode melhorar o desempenho ao acessar arquivos e diretórios, mas pode reduzir a memória disponível para outros usos12.
+# Limpar o cache:  sudo sync; sudo echo 3 > /proc/sys/vm/drop_caches
+# Alterar valor :  sudo sed -i 's/^vm.vfs_cache_pressure=.*/vm.vfs_cache_pressure=90/' /etc/sysctl.conf && sysctl -p
+cat /proc/sys/vm/vfs_cache_pressure
+sysctl vm.vfs_cache_pressure=90
+cat << EOF >> /etc/sysctl.conf
+vm.vfs_cache_pressure=90
 EOF
 
 

@@ -23,9 +23,9 @@ echo '/mnt/2GiB.swap swap swap defaults 0 0' | tee -a /etc/fstab
 # O parâmetro swappiness controla a tendência do kernel de mover processos da memória RAM para a swap. Um valor mais baixo faz com que o sistema use menos swap e mantenha mais dados na RAM.
 # Alterar valor :  sudo sed -i 's/^vm.swappiness=.*/vm.swappiness=20/' /etc/sysctl.conf && sysctl -p
 cat /proc/sys/vm/swappiness
-sysctl vm.swappiness=20
+sysctl vm.swappiness=10
 cat << EOF >> /etc/sysctl.conf
-vm.swappiness=20
+vm.swappiness=10
 EOF
 
 # O vfs_cache_pressure determina com que frequência o kernel deve liberar a memória usada para cache de inodes e dentries (estruturas que representam arquivos e diretórios no sistema de arquivos).
@@ -35,9 +35,9 @@ EOF
 # Limpar o cache:  sudo sync; sudo echo 3 > /proc/sys/vm/drop_caches
 # Alterar valor :  sudo sed -i 's/^vm.vfs_cache_pressure=.*/vm.vfs_cache_pressure=90/' /etc/sysctl.conf && sysctl -p
 cat /proc/sys/vm/vfs_cache_pressure
-sysctl vm.vfs_cache_pressure=90
+sysctl vm.vfs_cache_pressure=50
 cat << EOF >> /etc/sysctl.conf
-vm.vfs_cache_pressure=90
+vm.vfs_cache_pressure=50
 EOF
 
 

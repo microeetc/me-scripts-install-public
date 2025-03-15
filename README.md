@@ -2,10 +2,7 @@
 
 Scripts para configuração automática via curl
 
-# Update 28/03
-# Update 28/03
-
 # Comandos / Arquivos
-- wget -qO- https://microeetc.com.br/_ | sh
-- wget -qO- https://microeetc.com.br/_/docker | sh
-- wget -qO- https://microeetc.com.br/_/docker/conteiner.php | sh
+- wget -qO- https://raw.githubusercontent.com/microeetc/me-scripts-install-public/master/ubuntu.sh | sh
+- wget -qO- https://raw.githubusercontent.com/microeetc/me-scripts-install-public/master/docker.sh | sh
+

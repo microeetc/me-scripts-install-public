@@ -1,0 +1,61 @@
+x-services:
+  duofy-base: &duofy-base
+    image: alpine:latest
+    env_file: .env
+    network_mode: host
+    pid: host
+    restart: always
+    extra_hosts:
+      - "${CUSTOMER_HOSTNAME}:127.0.0.1"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "64m"
+        max-file: "1"
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 64M
+
+services:
+  duomonitor-nexpt:
+    <<: *duofy-base
+    image: gru.ocir.io/grzcon23sk2s/kingmonitor:nodeexporter
+    container_name: duomonitor-nexpt
+    hostname: ${CUSTOMER_HOSTNAME}-nexpt
+    volumes:
+      - /:/rootfs:ro,rslave
+
+  duomonitor-cadv:
+    <<: *duofy-base
+    image: gru.ocir.io/grzcon23sk2s/kingmonitor:cadvisor
+    container_name: duomonitor-cadv
+    hostname: ${CUSTOMER_HOSTNAME}-cadv
+    volumes:
+      - /sys:/sys:ro
+      - /var/run:/var/run:ro
+      - /var/lib/docker:/var/lib/docker:ro
+      - /:/rootfs:ro
+
+  duomonitor-pp:
+    <<: *duofy-base
+    image: gru.ocir.io/grzcon23sk2s/kingmonitor:pushproxy 
+    container_name: duomonitor-pp
+    hostname: 'duomonitor-pp'
+
+  duomonitor-pexpt:
+    <<: *duofy-base
+    image: gru.ocir.io/grzcon23sk2s/kingmonitor:postgresexporter
+    container_name: duomonitor-pexpt
+    hostname: ${CUSTOMER_HOSTNAME}-pexpt
+
+  duomonitor-lexpt:
+    <<: *duofy-base
+    image: gru.ocir.io/grzcon23sk2s/kingmonitor:networkexporter
+    container_name: duomonitor-lexpt
+    hostname: ${CUSTOMER_HOSTNAME}-lexpt
+    privileged: true
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW

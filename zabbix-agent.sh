@@ -8,7 +8,7 @@
 set -e
 
 # Variables
-ZABBIX_VERSION="6.4-1"
+ZABBIX_VERSION="7.2.10"
 
 # Get versions
 VERSION_ID=$(. /etc/os-release && echo "$VERSION_ID")

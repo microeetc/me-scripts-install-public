@@ -8,7 +8,7 @@
 set -e
 
 # Variables
-ZABBIX_VERSION="7.2.10"
+ZABBIX_VERSION="7.2"
 
 # Get versions
 VERSION_ID=$(. /etc/os-release && echo "$VERSION_ID")
@@ -24,7 +24,7 @@ fi
 FILENAME="zabbix-release_${ZABBIX_VERSION}+${SYSTEM_ID}${VERSION_ID}_all.deb"
 
 # Download Zabbix Versions
-wget https://repo.zabbix.com/zabbix/6.4/${SYSTEM_ID}${ARM}/pool/main/z/zabbix-release/${FILENAME}
+wget https://repo.zabbix.com/zabbix/${ZABBIX_VERSION}/${SYSTEM_ID}${ARM}/pool/main/z/zabbix-release/${FILENAME}
 
 dpkg -i ${FILENAME}
 apt update

@@ -46,7 +46,7 @@ wget -qO- https://raw.githubusercontent.com/microeetc/me-scripts-install-public/
 
 ### Requisitos Técnicos
 
-* **SO:** Ubuntu 24.04 LTS.
+* **SO:** Ubuntu 24.04 LTS ou Ubuntu 22.04 LTS (não testado em outras versões)
 * **Rede:** A VM deve ser capaz de alcançar os controladores de domínio e resolver o nome do domínio via DNS.
 * **Privilégios:** Deve ser executado com `sudo`.
 

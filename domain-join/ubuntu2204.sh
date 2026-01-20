@@ -131,8 +131,10 @@ sudo apt install -y \
     packagekit krb5-user
 
 # 6. Ingressar no Domínio
-echo -e "\n${YELLOW}Ingressando no domínio (digite a senha para $AD_USER):${NC}"
-sudo realm join -U "$AD_USER" "$AD_DOMAIN" < /dev/tty
+echo -e "\n${YELLOW}Ingressando no domínio...${NC}"
+read -s -p "Digite a senha para $AD_USER: " AD_PASSWORD
+echo
+echo "$AD_PASSWORD" | sudo realm join --stdin -U "$AD_USER" "$AD_DOMAIN"
 
 if [ $? -ne 0 ]; then
     echo -e "${RED}Erro no 'realm join'. Verifique DNS, Horário e Senha.${NC}"

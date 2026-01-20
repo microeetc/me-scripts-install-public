@@ -67,6 +67,32 @@ else
     echo -e "${GREEN}OK ($DC_IP)${NC}"
 fi
 
+# Verifica se o IP é privado (RFC 1918)
+is_private_ip() {
+    local ip="$1"
+    local octet1=$(echo "$ip" | cut -d. -f1)
+    local octet2=$(echo "$ip" | cut -d. -f2)
+
+    # 10.0.0.0/8
+    [[ "$octet1" -eq 10 ]] && return 0
+    # 172.16.0.0/12 (172.16.x.x - 172.31.x.x)
+    [[ "$octet1" -eq 172 && "$octet2" -ge 16 && "$octet2" -le 31 ]] && return 0
+    # 192.168.0.0/16
+    [[ "$octet1" -eq 192 && "$octet2" -eq 168 ]] && return 0
+
+    return 1
+}
+
+if ! is_private_ip "$DC_IP"; then
+    echo -e "${YELLOW}AVISO: O IP $DC_IP não é um endereço privado (RFC 1918).${NC}"
+    echo -e "${YELLOW}Não é comum um Active Directory exposto com IP público.${NC}"
+    read -p "Deseja continuar mesmo assim? (s/N): " CONTINUAR
+    if [[ ! "$CONTINUAR" =~ ^[Ss]$ ]]; then
+        echo "Operação cancelada pelo usuário."
+        exit 0
+    fi
+fi
+
 # 4. Verificação e Sincronização de Tempo (Crucial para Kerberos)
 echo -n "2. Verificando sincronização de horário com o AD... "
 # Obtém o offset (diferença) em segundos
@@ -89,6 +115,16 @@ fi
 # 5. Instalação de Dependências do Domínio
 echo -e "\n${YELLOW}Instalando pacotes do sistema...${NC}"
 export DEBIAN_FRONTEND=noninteractive
+
+# Pré-configura o krb5-user para evitar o wizard interativo
+sudo debconf-set-selections <<EOF
+krb5-config krb5-config/default_realm string ${AD_DOMAIN^^}
+krb5-config krb5-config/kerberos_servers string $AD_DOMAIN
+krb5-config krb5-config/admin_server string $AD_DOMAIN
+krb5-config krb5-config/add_servers_realm string ${AD_DOMAIN^^}
+krb5-config krb5-config/read_conf boolean true
+EOF
+
 sudo apt install -y \
     realmd sssd sssd-tools libnss-sss libpam-sss \
     adcli samba-common-bin oddjob oddjob-mkhomedir \

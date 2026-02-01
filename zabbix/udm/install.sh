@@ -103,10 +103,12 @@ echo "  [6/8] Criando arquivo PSK..."
 echo "$PSK_VALUE" > /etc/zabbix/secret.psk
 chown zabbix:zabbix /etc/zabbix/secret.psk
 chmod 600 /etc/zabbix/secret.psk
+echo "        PSK criado."
 
 # 5. Criar Configuracao do Proxy
 echo "  [7/8] Criando arquivos de configuracao..."
-cat <<EOF > /etc/zabbix/zabbix_proxy.conf
+echo "        Criando zabbix_proxy.conf..."
+cat > /etc/zabbix/zabbix_proxy.conf << 'CONFIGEND'
 Server=$PROXY_SERVER
 Hostname=$HOSTNAME-proxy
 ListenIP=0.0.0.0
@@ -124,10 +126,13 @@ LogRemoteCommands=1
 LogFile=/var/log/zabbix/zabbix_proxy.log
 DBName=/var/lib/zabbix/zabbix_proxy.db
 DataSenderFrequency=2
-EOF
+CONFIGEND
+sed -i "s/\$PROXY_SERVER/$PROXY_SERVER/g" /etc/zabbix/zabbix_proxy.conf
+sed -i "s/\$HOSTNAME/$HOSTNAME/g" /etc/zabbix/zabbix_proxy.conf
+sed -i "s/\$PSK_IDENTITY/$PSK_IDENTITY/g" /etc/zabbix/zabbix_proxy.conf
 
-# 6. Criar Configuracao do Agent 2
-cat <<EOF > /etc/zabbix/zabbix_agent2.conf
+echo "        Criando zabbix_agent2.conf..."
+cat > /etc/zabbix/zabbix_agent2.conf << 'CONFIGEND'
 Hostname=$HOSTNAME
 ListenIP=0.0.0.0
 ListenPort=10150
@@ -142,11 +147,13 @@ ControlSocket=/tmp/agent.sock
 LogFile=/var/log/zabbix/zabbix_agent2.log
 DebugLevel=0
 Timeout=30
-EOF
+CONFIGEND
+sed -i "s/\$HOSTNAME/$HOSTNAME/g" /etc/zabbix/zabbix_agent2.conf
+sed -i "s/\$PSK_IDENTITY/$PSK_IDENTITY/g" /etc/zabbix/zabbix_agent2.conf
 
 # 7. Criar Servicos Systemd
 echo "  [8/8] Criando e iniciando servicos..."
-cat <<EOF > /etc/systemd/system/zabbix-proxy.service
+cat > /etc/systemd/system/zabbix-proxy.service << 'SERVICEEND'
 [Unit]
 Description=Zabbix Proxy (Static)
 After=network.target
@@ -162,9 +169,9 @@ Environment="MIBDIRS=/var/lib/zabbix/mibs"
 
 [Install]
 WantedBy=multi-user.target
-EOF
+SERVICEEND
 
-cat <<EOF > /etc/systemd/system/zabbix-agent2.service
+cat > /etc/systemd/system/zabbix-agent2.service << 'SERVICEEND'
 [Unit]
 Description=Zabbix Agent 2 (Static)
 After=network.target
@@ -179,7 +186,7 @@ RestartSec=5
 
 [Install]
 WantedBy=multi-user.target
-EOF
+SERVICEEND
 
 # 8. Habilitar e Iniciar
 systemctl daemon-reload

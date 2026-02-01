@@ -132,9 +132,8 @@ sudo apt install -y \
 
 # 6. Ingressar no Domínio
 echo -e "\n${YELLOW}Ingressando no domínio...${NC}"
-read -s -p "Digite a senha para $AD_USER: " AD_PASSWORD
 echo
-echo "$AD_PASSWORD" | sudo realm join --stdin -U "$AD_USER" "$AD_DOMAIN"
+echo sudo realm -U "$AD_USER" join "$AD_DOMAIN"
 
 if [ $? -ne 0 ]; then
     echo -e "${RED}Erro no 'realm join'. Verifique DNS, Horário e Senha.${NC}"

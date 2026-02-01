@@ -6,7 +6,7 @@ echo "### Iniciando Instalação do Zabbix na UDM-Pro ###"
 
 # --- VERIFICAR DEPENDÊNCIAS ---
 for cmd in wget unzip openssl; do
-    if ! command -v $cmd &> /dev/null; then
+    if ! command -v $cmd > /dev/null 2>&1; then
         echo "ERRO: '$cmd' não está instalado. Instale antes de continuar."
         exit 1
     fi

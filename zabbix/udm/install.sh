@@ -1,12 +1,13 @@
 #!/bin/bash
 
 # Se executado via pipe, baixar e re-executar o script
-if [ ! -t 0 ]; then
+if [ ! -t 0 ] && [ -z "$ZABBIX_INSTALL_REEXEC" ]; then
     SCRIPT_URL="https://raw.githubusercontent.com/microeetc/me-scripts-install-public/master/zabbix/udm/install.sh"
     TMP_SCRIPT="/tmp/zabbix-install-$$.sh"
     wget -q -O "$TMP_SCRIPT" "$SCRIPT_URL"
     chmod +x "$TMP_SCRIPT"
-    exec bash "$TMP_SCRIPT"
+    export ZABBIX_INSTALL_REEXEC=1
+    exec bash "$TMP_SCRIPT" </dev/tty
     exit 0
 fi
 

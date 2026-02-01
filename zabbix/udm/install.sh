@@ -29,6 +29,7 @@ BIN_URL="https://github.com/microeetc/me-scripts-install-public/releases/latest/
 echo "### Instalacao ###"
 
 # 1. Criar Usuario e Grupo
+echo "  [1/8] Criando usuario e grupo..."
 if ! getent group zabbix > /dev/null; then
     groupadd --system zabbix
 fi
@@ -37,26 +38,28 @@ if ! getent passwd zabbix > /dev/null; then
 fi
 
 # 2. Criar Estrutura de Pastas
+echo "  [2/8] Criando estrutura de pastas..."
 mkdir -p /etc/zabbix /var/lib/zabbix /var/lib/zabbix/mibs /var/log/zabbix /etc/zabbix/zabbix_agent2.d /usr/sbin
 chown -R zabbix:zabbix /etc/zabbix /var/lib/zabbix /var/log/zabbix
 
 # 3. Download dos Binarios
-echo "Baixando binarios..."
+echo "  [3/8] Baixando binarios (pode demorar)..."
 
 TMP_DIR=$(mktemp -d)
 cd "$TMP_DIR"
 
-if ! wget -q -O zabbix.zip "$BIN_URL"; then
+wget --progress=bar:force -O zabbix.zip "$BIN_URL" 2>&1 || {
     echo "ERRO: Falha ao baixar binarios de $BIN_URL"
     rm -rf "$TMP_DIR"
     exit 1
-fi
+}
 
-if ! unzip -q zabbix.zip; then
+echo "  [4/8] Extraindo arquivos..."
+unzip -q zabbix.zip || {
     echo "ERRO: Falha ao extrair zabbix.zip"
     rm -rf "$TMP_DIR"
     exit 1
-fi
+}
 
 EXTRACTED_DIR=$(find . -maxdepth 1 -type d -name "zabbix-*" | head -1)
 if [ -z "$EXTRACTED_DIR" ]; then
@@ -65,6 +68,7 @@ if [ -z "$EXTRACTED_DIR" ]; then
     exit 1
 fi
 
+echo "  [5/8] Copiando binarios..."
 cp "$EXTRACTED_DIR/zabbix_proxy" /usr/sbin/
 cp "$EXTRACTED_DIR/zabbix_agent2" /usr/sbin/
 chmod +x /usr/sbin/zabbix_proxy /usr/sbin/zabbix_agent2
@@ -74,7 +78,7 @@ if [ ! -f /var/lib/zabbix/zabbix_proxy.db ]; then
     chown zabbix:zabbix /var/lib/zabbix/zabbix_proxy.db
     chmod 644 /var/lib/zabbix/zabbix_proxy.db
 else
-    echo "Database ja existe, mantendo dados existentes..."
+    echo "  Database ja existe, mantendo dados existentes..."
 fi
 
 if [ -d "$EXTRACTED_DIR/mibs" ]; then
@@ -85,14 +89,16 @@ fi
 cd /
 rm -rf "$TMP_DIR"
 
-echo "Binarios instalados com sucesso!"
+echo "  Binarios instalados!"
 
 # 4. Criar Arquivo PSK
+echo "  [6/8] Criando arquivo PSK..."
 echo "$PSK_VALUE" > /etc/zabbix/secret.psk
 chown zabbix:zabbix /etc/zabbix/secret.psk
 chmod 600 /etc/zabbix/secret.psk
 
 # 5. Criar Configuracao do Proxy
+echo "  [7/8] Criando arquivos de configuracao..."
 cat <<EOF > /etc/zabbix/zabbix_proxy.conf
 Server=$PROXY_SERVER
 Hostname=$HOSTNAME-proxy
@@ -132,6 +138,7 @@ Timeout=30
 EOF
 
 # 7. Criar Servicos Systemd
+echo "  [8/8] Criando e iniciando servicos..."
 cat <<EOF > /etc/systemd/system/zabbix-proxy.service
 [Unit]
 Description=Zabbix Proxy (Static)

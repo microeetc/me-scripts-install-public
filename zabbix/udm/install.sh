@@ -1,14 +1,21 @@
 #!/bin/bash
 
+# Se executado via pipe, baixar e re-executar o script
+if [ ! -t 0 ]; then
+    SCRIPT_URL="https://raw.githubusercontent.com/microeetc/me-scripts-install-public/master/zabbix/udm/install.sh"
+    TMP_SCRIPT="/tmp/zabbix-install-$$.sh"
+    wget -q -O "$TMP_SCRIPT" "$SCRIPT_URL"
+    chmod +x "$TMP_SCRIPT"
+    exec bash "$TMP_SCRIPT"
+    exit 0
+fi
+
 echo "### Iniciando Instalacao do Zabbix na UDM-Pro ###"
 
 # --- VERIFICAR DEPENDENCIAS ---
 which wget > /dev/null 2>&1 || { echo "ERRO: 'wget' nao esta instalado."; exit 1; }
 which unzip > /dev/null 2>&1 || { echo "ERRO: 'unzip' nao esta instalado."; exit 1; }
 which openssl > /dev/null 2>&1 || { echo "ERRO: 'openssl' nao esta instalado."; exit 1; }
-
-# Redirecionar stdin para o terminal (necessario quando executado via pipe)
-exec < /dev/tty
 
 # --- CONFIGURACOES ---
 echo "### Configuracoes ###"

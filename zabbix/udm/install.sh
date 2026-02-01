@@ -7,15 +7,18 @@ which wget > /dev/null 2>&1 || { echo "ERRO: 'wget' nao esta instalado."; exit 1
 which unzip > /dev/null 2>&1 || { echo "ERRO: 'unzip' nao esta instalado."; exit 1; }
 which openssl > /dev/null 2>&1 || { echo "ERRO: 'openssl' nao esta instalado."; exit 1; }
 
+# Redirecionar stdin para o terminal (necessario quando executado via pipe)
+exec < /dev/tty
+
 # --- CONFIGURACOES ---
 echo "### Configuracoes ###"
 echo
 echo -n "IP do servidor central (formato IP:PORTA): "
-read PROXY_SERVER < /dev/tty
+read PROXY_SERVER
 echo
 
 echo -n "Host do dispositivo (Padrao: EMPR-LOCL-TP-HOSTNAME): "
-read HOSTNAME < /dev/tty
+read HOSTNAME
 echo
 
 # TLS

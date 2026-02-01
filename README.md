@@ -3,7 +3,7 @@
 Scripts para configuração automática via curl
 
 # Comandos / Arquivos
-- wget -qO- https://raw.githubusercontent.com/microeetc/me-scripts-install-public/master/ubuntu.sh | sh
+- wget -qO- https://raw.githubusercontent.com/microeetc/me-scripts-install-public/master/ubuntu/setup.sh | sh
 - wget -qO- https://raw.githubusercontent.com/microeetc/me-scripts-install-public/master/docker/install.sh | sh
 
 - wget -qO- https://raw.githubusercontent.com/microeetc/me-scripts-install-public/master/domain-join/redhat.sh | bash -s -- --domain domain.local --user username --groups "linuxadmins grexample2"

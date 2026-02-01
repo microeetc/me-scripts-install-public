@@ -5,7 +5,7 @@ set -e
 echo "### Iniciando Instalação do Zabbix na UDM-Pro ###"
 
 # --- VERIFICAR DEPENDÊNCIAS ---
-for cmd in curl unzip openssl; do
+for cmd in wget unzip openssl; do
     if ! command -v $cmd &> /dev/null; then
         echo "ERRO: '$cmd' não está instalado. Instale antes de continuar."
         exit 1
@@ -51,7 +51,7 @@ TMP_DIR=$(mktemp -d)
 cd "$TMP_DIR"
 
 # Download do ZIP
-if ! curl -fsSL -o zabbix.zip "$BIN_URL"; then
+if ! wget -q -O zabbix.zip "$BIN_URL"; then
     echo "ERRO: Falha ao baixar binários de $BIN_URL"
     rm -rf "$TMP_DIR"
     exit 1

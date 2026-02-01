@@ -1,0 +1,3 @@
+# ZABBIX
+Configuração do Zabbix Agent em servidores Linux como serviço
+A instalação deve ser feita utilizando os instaladores padrões do zabbix via yum, apt, etc...

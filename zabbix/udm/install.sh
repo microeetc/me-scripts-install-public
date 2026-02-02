@@ -18,26 +18,58 @@ which wget > /dev/null 2>&1 || { echo "ERRO: 'wget' nao esta instalado."; exit 1
 which unzip > /dev/null 2>&1 || { echo "ERRO: 'unzip' nao esta instalado."; exit 1; }
 which openssl > /dev/null 2>&1 || { echo "ERRO: 'openssl' nao esta instalado."; exit 1; }
 
+# --- VERIFICAR CONFIGURACAO EXISTENTE ---
+EXISTING_CONFIG=0
+if [ -f /etc/zabbix/zabbix_proxy.conf ] && [ -f /etc/zabbix/zabbix_agent2.conf ] && [ -f /etc/zabbix/secret.psk ]; then
+    echo "### Configuracao existente detectada ###"
+    echo
+
+    # Extrair valores existentes
+    PROXY_SERVER=$(grep "^Server=" /etc/zabbix/zabbix_proxy.conf | cut -d'=' -f2)
+    HOSTNAME=$(grep "^Hostname=" /etc/zabbix/zabbix_agent2.conf | cut -d'=' -f2)
+    PSK_IDENTITY=$(grep "^TLSPSKIdentity=" /etc/zabbix/zabbix_proxy.conf | cut -d'=' -f2)
+    PSK_VALUE=$(cat /etc/zabbix/secret.psk)
+
+    # Verificar se todos os valores foram extraidos
+    if [ -n "$PROXY_SERVER" ] && [ -n "$HOSTNAME" ] && [ -n "$PSK_IDENTITY" ] && [ -n "$PSK_VALUE" ]; then
+        EXISTING_CONFIG=1
+        echo "  Configuracao encontrada:"
+        echo "    Server:       $PROXY_SERVER"
+        echo "    Hostname:     $HOSTNAME"
+        echo "    PSK Identity: $PSK_IDENTITY"
+        echo "    PSK Value:    ${PSK_VALUE:0:12}..."
+        echo
+        echo "  Usando configuracao existente (reinstalacao)."
+        echo
+    else
+        echo "  Configuracao incompleta, solicitando novos dados..."
+        echo
+        EXISTING_CONFIG=0
+    fi
+fi
+
 # --- CONFIGURACOES ---
-echo "### Configuracoes ###"
-echo
-echo -n "IP do servidor central (formato IP:PORTA): "
-read PROXY_SERVER
-echo
+if [ "$EXISTING_CONFIG" -eq 0 ]; then
+    echo "### Configuracoes ###"
+    echo
+    echo -n "IP do servidor central (formato IP:PORTA): "
+    read PROXY_SERVER
+    echo
 
-echo -n "Host do dispositivo (Padrao: EMPR-LOCL-TP-HOSTNAME): "
-read HOSTNAME
-echo
+    echo -n "Host do dispositivo (Padrao: EMPR-LOCL-TP-HOSTNAME): "
+    read HOSTNAME
+    echo
 
-# TLS
-PSK_IDENTITY=$(openssl rand -hex 6)
-PSK_VALUE=$(openssl rand -hex 24)
+    # TLS - Gerar novos valores
+    PSK_IDENTITY=$(openssl rand -hex 6)
+    PSK_VALUE=$(openssl rand -hex 24)
+fi
 BIN_URL="https://github.com/microeetc/me-scripts-install-public/releases/latest/download/zabbix-7.2.15-debian11-arm64.zip"
 
 echo "### Instalacao ###"
 
 # 1. Criar Usuario e Grupo
-echo "  [1/8] Criando usuario e grupo..."
+echo "  [1/9] Criando usuario e grupo..."
 if ! getent group zabbix > /dev/null; then
     groupadd --system zabbix
 fi
@@ -46,12 +78,12 @@ if ! getent passwd zabbix > /dev/null; then
 fi
 
 # 2. Criar Estrutura de Pastas
-echo "  [2/8] Criando estrutura de pastas..."
+echo "  [2/9] Criando estrutura de pastas..."
 mkdir -p /etc/zabbix /var/lib/zabbix /var/lib/zabbix/mibs /var/log/zabbix /etc/zabbix/zabbix_agent2.d /usr/sbin
 chown -R zabbix:zabbix /etc/zabbix /var/lib/zabbix /var/log/zabbix
 
 # 3. Download dos Binarios
-echo "  [3/8] Baixando binarios (pode demorar)..."
+echo "  [3/9] Baixando binarios (pode demorar)..."
 
 TMP_DIR=$(mktemp -d)
 cd "$TMP_DIR"
@@ -62,7 +94,7 @@ wget --progress=bar:force -O zabbix.zip "$BIN_URL" 2>&1 || {
     exit 1
 }
 
-echo "  [4/8] Extraindo arquivos..."
+echo "  [4/9] Extraindo arquivos..."
 unzip -q zabbix.zip || {
     echo "ERRO: Falha ao extrair zabbix.zip"
     rm -rf "$TMP_DIR"
@@ -76,7 +108,13 @@ if [ -z "$EXTRACTED_DIR" ]; then
     exit 1
 fi
 
-echo "  [5/8] Copiando binarios..."
+# Parar servicos se existirem (para substituir binarios em uso)
+if systemctl is-active --quiet zabbix-proxy 2>/dev/null || systemctl is-active --quiet zabbix-agent2 2>/dev/null; then
+    echo "  [5/9] Parando servicos existentes..."
+    systemctl stop zabbix-proxy zabbix-agent2 2>/dev/null
+fi
+
+echo "  [6/9] Copiando binarios..."
 cp "$EXTRACTED_DIR/zabbix_proxy" /usr/sbin/
 cp "$EXTRACTED_DIR/zabbix_agent2" /usr/sbin/
 chmod +x /usr/sbin/zabbix_proxy /usr/sbin/zabbix_agent2
@@ -99,15 +137,15 @@ rm -rf "$TMP_DIR"
 
 echo "  Binarios instalados!"
 
-# 4. Criar Arquivo PSK
-echo "  [6/8] Criando arquivo PSK..."
+# 6. Criar Arquivo PSK
+echo "  [7/9] Criando arquivo PSK..."
 echo "$PSK_VALUE" > /etc/zabbix/secret.psk
 chown zabbix:zabbix /etc/zabbix/secret.psk
 chmod 600 /etc/zabbix/secret.psk
 echo "        PSK criado."
 
-# 5. Criar Configuracao do Proxy
-echo "  [7/8] Criando arquivos de configuracao..."
+# 7. Criar Configuracao do Proxy
+echo "  [8/9] Criando arquivos de configuracao..."
 echo "        Criando zabbix_proxy.conf..."
 cat > /etc/zabbix/zabbix_proxy.conf << 'CONFIGEND'
 Server=$PROXY_SERVER
@@ -152,8 +190,8 @@ CONFIGEND
 sed -i "s/\$HOSTNAME/$HOSTNAME/g" /etc/zabbix/zabbix_agent2.conf
 sed -i "s/\$PSK_IDENTITY/$PSK_IDENTITY/g" /etc/zabbix/zabbix_agent2.conf
 
-# 7. Criar Servicos Systemd
-echo "  [8/8] Criando e iniciando servicos..."
+# 8. Criar Servicos Systemd
+echo "  [9/9] Criando e iniciando servicos..."
 cat > /etc/systemd/system/zabbix-proxy.service << 'SERVICEEND'
 [Unit]
 Description=Zabbix Proxy (Static)

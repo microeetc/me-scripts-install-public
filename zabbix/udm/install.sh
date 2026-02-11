@@ -64,7 +64,6 @@ if [ "$EXISTING_CONFIG" -eq 0 ]; then
     PSK_IDENTITY=$(openssl rand -hex 6)
     PSK_VALUE=$(openssl rand -hex 24)
 fi
-
 BIN_URL="https://github.com/microeetc/me-scripts-install-public/releases/download/zabbix-7.2.15-debian11-arm64.zip"
 
 echo "### Instalacao ###"

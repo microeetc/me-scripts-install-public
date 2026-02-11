@@ -119,6 +119,13 @@ cp "$EXTRACTED_DIR/zabbix_proxy" /usr/sbin/
 cp "$EXTRACTED_DIR/zabbix_agent2" /usr/sbin/
 chmod +x /usr/sbin/zabbix_proxy /usr/sbin/zabbix_agent2
 
+# Copiar fping (necessario para ICMP checks)
+if [ -f "$EXTRACTED_DIR/fping" ]; then
+    cp "$EXTRACTED_DIR/fping" /usr/sbin/fping
+    chmod 4755 /usr/sbin/fping  # setuid para raw sockets (zabbix user)
+    echo "  fping instalado!"
+fi
+
 if [ ! -f /var/lib/zabbix/zabbix_proxy.db ]; then
     cp "$EXTRACTED_DIR/zabbix_proxy.db" /var/lib/zabbix/
     chown zabbix:zabbix /var/lib/zabbix/zabbix_proxy.db
@@ -174,6 +181,7 @@ LogFile=/var/log/zabbix/zabbix_proxy.log
 DBName=/var/lib/zabbix/zabbix_proxy.db
 DataSenderFrequency=2
 ExternalScripts=/etc/zabbix/externalscripts
+FpingLocation=/usr/sbin/fping
 CONFIGEND
 sed -i "s/\$PROXY_SERVER/$PROXY_SERVER/g" /etc/zabbix/zabbix_proxy.conf
 sed -i "s/\$HOSTNAME/$HOSTNAME/g" /etc/zabbix/zabbix_proxy.conf

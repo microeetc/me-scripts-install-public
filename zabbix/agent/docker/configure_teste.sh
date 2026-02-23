@@ -52,37 +52,37 @@ read Agent_Hostname < /dev/tty
 # -------------------------------
 # Validação básica
 # -------------------------------
-if [ -z "$Proxy_Hostname" ] || [ -z "$Server_Host" ] || [ -z "$Agent_Hostname" ]; then
+if [ -z "$Server_Host" ] || [ -z "$Agent_Hostname" ]; then
+  echo "Erro: variáveis obrigatórias não informadas."
+  exit 1
+fi
+
+if [ "$ENABLE_PROXY" = true ] && [ -z "$Proxy_Hostname" ]; then
   echo "Erro: variáveis obrigatórias não informadas."
   exit 1
 fi
 
 # -------------------------------
-# Estrutura de diretórios
-# -------------------------------
-mkdir -p "$composeDir/data/zabbix"
-mkdir -p "$composeDir/data/zabbix/proxy/db"
-mkdir -p "$composeDir/config/zabbix/externalscripts"
-
-# -------------------------------
 # Criação do .env
 # -------------------------------
 
-if [ "$ENABLE_PROXY" = true ]; then
-  
-  echo "PROXY_HOSTNAME=$Proxy_Hostname" >> "$dotEnv"
-  echo "PROXY_KEY_IDENTITY=$PROXY_IDENTITY_KEY" >> "$dotEnv"
-  echo "PROXY_KEY_PSK=$PROXY_PSK_KEY" >> "$dotEnv"
-  echo "$PROXY_PSK_KEY" > "$composeDir/data/zabbix/proxy_tls.psk"
+# Zera o arquivo primeiro
+> "$dotEnv"
 
-fi
-
-echo "SERVER_HOST=$Server_Host" > "$dotEnv"
+echo "SERVER_HOST=$Server_Host" >> "$dotEnv"
 echo "AGENT_HOST=$Agent_Hostname" >> "$dotEnv"
 echo "KEY_IDENTITY=$AGENT_IDENTITY_KEY" >> "$dotEnv"
 echo "KEY_PSK=$AGENT_PSK_KEY" >> "$dotEnv"
 
 echo "$AGENT_PSK_KEY" > "$composeDir/data/zabbix/tls.psk"
+
+if [ "$ENABLE_PROXY" = true ]; then
+  echo "PROXY_HOSTNAME=$Proxy_Hostname" >> "$dotEnv"
+  echo "PROXY_KEY_IDENTITY=$PROXY_IDENTITY_KEY" >> "$dotEnv"
+  echo "PROXY_KEY_PSK=$PROXY_PSK_KEY" >> "$dotEnv"
+
+  echo "$PROXY_PSK_KEY" > "$composeDir/data/zabbix/proxy_tls.psk"
+fi
 
 
 # -------------------------------

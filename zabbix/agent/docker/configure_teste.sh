@@ -7,13 +7,11 @@ composeFile="$composeDir/docker-compose.yml"
 Identity_Key=$(openssl rand -hex 6)
 PSK_KEY=$(openssl rand -hex 24)
 
-# Solicita o IP do Proxy
 echo -n "IP do Servidor Proxy: "
-read Server_Host
+read Server_Host < /dev/tty
 
-# Solicita o Host do Dispositivo
 echo -n "Host do Dispositivo (Padrão SPKR - EMPR-LOCL-TP-HOSTNAME): "
-read Hostname
+read Hostname < /dev/tty
 
 # Cria diretório do compose caso não exista
 mkdir -p "$composeDir"

@@ -47,7 +47,7 @@ echo -n "IP do Servidor Proxy: "
 read Server_Host < /dev/tty
 
 echo -n "Host do Dispositivo (Padrão SPKR - EMPR-LOCL-TP-HOSTNAME): "
-read Hostname < /dev/tty
+read Agent_Hostname < /dev/tty
 
 # -------------------------------
 # Validação básica
@@ -78,7 +78,7 @@ if [ "$ENABLE_PROXY" = true ]; then
 fi
 
 echo "SERVER_HOST=$Server_Host" > "$dotEnv"
-echo "HOSTNAME=$Agent_Hostname" >> "$dotEnv"
+echo "AGENT_HOST=$Agent_Hostname" >> "$dotEnv"
 echo "KEY_IDENTITY=$AGENT_IDENTITY_KEY" >> "$dotEnv"
 echo "KEY_PSK=$AGENT_PSK_KEY" >> "$dotEnv"
 

@@ -52,7 +52,7 @@ read Agent_Hostname < /dev/tty
 # -------------------------------
 # Validação básica
 # -------------------------------
-if [ -z "$Proxy_Hostname" ] || [ -z "$Server_Host" ] || [ -z "$Hostname" ]; then
+if [ -z "$Proxy_Hostname" ] || [ -z "$Server_Host" ] || [ -z "$Agent_Hostname" ]; then
   echo "Erro: variáveis obrigatórias não informadas."
   exit 1
 fi

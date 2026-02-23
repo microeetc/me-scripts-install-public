@@ -85,13 +85,11 @@ echo "KEY_PSK=$AGENT_PSK_KEY" >> "$dotEnv"
 echo "$AGENT_PSK_KEY" > "$composeDir/data/zabbix/tls.psk"
 
 
-
 # -------------------------------
-# Criação condicional do compose
+# Criação do docker-compose
 # -------------------------------
-if [ ! -f "$composeFile" ]; then
 
-  if [ "$ENABLE_PROXY" = true ]; then
+if [ "$ENABLE_PROXY" = true ]; then
 
 cat <<EOF > "$composeFile"
 services:
@@ -120,7 +118,7 @@ services:
       - ZBX_SERVER_PORT=10151
       - ZBX_LISTENIP=0.0.0.0
       - ZBX_LISTENPORT=10150
-      - ZBX_HOSTNAME=\${HOSTNAME}
+      - ZBX_HOSTNAME=\${AGENT_HOST}
       - ZBX_TIMEOUT=30
       - ZBX_DEBUGLEVEL=3
       - ZBX_TLSPSKFILE=/var/lib/zabbix/tls.psk
@@ -161,7 +159,7 @@ services:
       - ZBX_LOGREMOTECOMMANDS=1
 EOF
 
-  else
+else
 
 cat <<EOF > "$composeFile"
 services:
@@ -190,7 +188,7 @@ services:
       - ZBX_SERVER_PORT=10151
       - ZBX_LISTENIP=0.0.0.0
       - ZBX_LISTENPORT=10150
-      - ZBX_HOSTNAME=\${HOSTNAME}
+      - ZBX_HOSTNAME=\${AGENT_HOST}
       - ZBX_TIMEOUT=30
       - ZBX_DEBUGLEVEL=3
       - ZBX_TLSPSKFILE=/var/lib/zabbix/tls.psk
@@ -199,12 +197,9 @@ services:
       - ZBX_TLSACCEPT=psk
 EOF
 
-  fi
-
-  echo "docker-compose.yml criado."
-else
-  echo "docker-compose.yml já existe — não foi alterado."
 fi
+
+echo "docker-compose.yml criado com sucesso."
 
 # -------------------------------
 # Output final

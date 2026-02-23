@@ -78,7 +78,7 @@ if [ "$ENABLE_PROXY" = true ]; then
 fi
 
 echo "SERVER_HOST=$Server_Host" > "$dotEnv"
-echo "HOSTNAME=$Hostname" >> "$dotEnv"
+echo "HOSTNAME=$Agent_Hostname" >> "$dotEnv"
 echo "KEY_IDENTITY=$AGENT_IDENTITY_KEY" >> "$dotEnv"
 echo "KEY_PSK=$AGENT_PSK_KEY" >> "$dotEnv"
 
@@ -227,7 +227,8 @@ echo "  PSK Identity:       ${PROXY_IDENTITY_KEY}"
 echo "  PSK Key:            ${PROXY_PSK_KEY}"
 echo ""
 echo "--- HOST AGENT ---"
-echo "  Nome do Host:       ${Server_Host}"
+echo "  Nome do Host:       ${Agent_Hostname}"
+echo "  IP do Host:         ${Server_Host}"
 echo "  PSK Identity:       ${AGENT_IDENTITY_KEY}"
 echo "  PSK Key:            ${AGENT_PSK_KEY}"
 echo ""

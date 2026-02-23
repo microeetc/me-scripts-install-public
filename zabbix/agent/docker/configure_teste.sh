@@ -37,21 +37,22 @@ fi
 # -------------------------------
 # Entrada interativa (sempre via tty)
 # -------------------------------
+
+if [ "$ENABLE_PROXY" = true ]; then
+  echo -n "Hostname do Proxy (Padrão SPKR - NOMECLIENTE-LOCL-HOSTNAME-PROXY): "
+  read Proxy_Hostname < /dev/tty
+fi
+
 echo -n "IP do Servidor Proxy: "
 read Server_Host < /dev/tty
 
 echo -n "Host do Dispositivo (Padrão SPKR - EMPR-LOCL-TP-HOSTNAME): "
 read Hostname < /dev/tty
 
-if [ "$ENABLE_PROXY" = true ]; then
-  echo -n "Hostname do Proxy: "
-  read Proxy_Hostname < /dev/tty
-fi
-
 # -------------------------------
 # Validação básica
 # -------------------------------
-if [ -z "$Server_Host" ] || [ -z "$Hostname" ]; then
+if [ -z "$Proxy_Hostname" ] || [ -z "$Server_Host" ] || [ -z "$Hostname" ]; then
   echo "Erro: variáveis obrigatórias não informadas."
   exit 1
 fi
@@ -66,6 +67,16 @@ mkdir -p "$composeDir/config/zabbix/externalscripts"
 # -------------------------------
 # Criação do .env
 # -------------------------------
+
+if [ "$ENABLE_PROXY" = true ]; then
+  
+  echo "PROXY_HOSTNAME=$Proxy_Hostname" >> "$dotEnv"
+  echo "PROXY_KEY_IDENTITY=$PROXY_IDENTITY_KEY" >> "$dotEnv"
+  echo "PROXY_KEY_PSK=$PROXY_PSK_KEY" >> "$dotEnv"
+  echo "$PROXY_PSK_KEY" > "$composeDir/data/zabbix/proxy_tls.psk"
+
+fi
+
 echo "SERVER_HOST=$Server_Host" > "$dotEnv"
 echo "HOSTNAME=$Hostname" >> "$dotEnv"
 echo "KEY_IDENTITY=$AGENT_IDENTITY_KEY" >> "$dotEnv"
@@ -73,13 +84,7 @@ echo "KEY_PSK=$AGENT_PSK_KEY" >> "$dotEnv"
 
 echo "$AGENT_PSK_KEY" > "$composeDir/data/zabbix/tls.psk"
 
-if [ "$ENABLE_PROXY" = true ]; then
-  echo "PROXY_HOSTNAME=$Proxy_Hostname" >> "$dotEnv"
-  echo "PROXY_KEY_IDENTITY=$PROXY_IDENTITY_KEY" >> "$dotEnv"
-  echo "PROXY_KEY_PSK=$PROXY_PSK_KEY" >> "$dotEnv"
 
-  echo "$PROXY_PSK_KEY" > "$composeDir/data/zabbix/proxy_tls.psk"
-fi
 
 # -------------------------------
 # Criação condicional do compose
@@ -204,19 +209,38 @@ fi
 # -------------------------------
 # Output final
 # -------------------------------
-echo
-echo "===================================================================="
-echo "Configurações geradas:"
-echo "===================================================================="
+
 cat "$dotEnv"
-echo "===================================================================="
 
-echo
-echo "PSK Agent:"
-echo "$AGENT_PSK_KEY"
 
-if [ "$ENABLE_PROXY" = true ]; then
-  echo
-  echo "PSK Proxy:"
-  echo "$PROXY_PSK_KEY"
-fi
+echo ""
+echo ""
+echo "###############################################################################"
+echo "###                    INSTALACAO CONCLUIDA COM SUCESSO!                    ###"
+echo "###############################################################################"
+echo ""
+echo "=== INFORMACOES PARA CONFIGURACAO NO ZABBIX SERVER ==="
+echo ""
+echo "--- PROXY ---"
+echo "  Nome do Proxy:      ${Proxy_Hostname}"
+echo "  PSK Identity:       ${PROXY_IDENTITY_KEY}"
+echo "  PSK Key:            ${PROXY_PSK_KEY}"
+echo ""
+echo "--- HOST AGENT ---"
+echo "  Nome do Host:       ${Server_Host}"
+echp "  PSK Identity:       ${AGENT_IDENTITY_KEY}"
+echo "  PSK Key:            ${AGENT_PSK_KEY}"
+echo ""
+echo "###############################################################################"
+echo ""
+echo ""
+echo "Logs disponiveis em:"
+echo "  - Proxy:   /var/log/zabbix/zabbix_proxy.log"
+echo "  - Agent2:  /var/log/zabbix/zabbix_agent2.log"
+echo ""
+echo "Comandos uteis:"
+echo "  systemctl status zabbix-proxy zabbix-agent2"
+echo "  journalctl -u zabbix-proxy -f"
+echo "  journalctl -u zabbix-agent2 -f"
+echo ""
+echo ""

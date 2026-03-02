@@ -139,9 +139,12 @@ services:
     expose:
       - 10151
     volumes:
-      - ./data/zabbix/proxy/db:/var/lib/zabbix/db_data
-      - ./data/zabbix/proxy_tls.psk:/var/lib/zabbix/tls.psk:ro
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
       - ./config/zabbix/externalscripts:/usr/lib/zabbix/externalscripts
+      - ./data/zabbix/proxy/db:/var/lib/zabbix/db_data:rw
+      - ./data/zabbix/proxy_tls.psk:/var/lib/zabbix/tls.psk:ro
+
     environment:
       - ZBX_SERVER_HOST=144.22.141.222:15151
       - ZBX_HOSTNAME=\${Proxy_Hostname}

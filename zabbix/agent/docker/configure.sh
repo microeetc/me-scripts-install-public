@@ -144,7 +144,7 @@ services:
       - ./config/zabbix/externalscripts:/usr/lib/zabbix/externalscripts
     environment:
       - ZBX_SERVER_HOST=144.22.141.222:15151
-      - ZBX_HOSTNAME=${PROXY_HOSTNAME}
+      - ZBX_HOSTNAME=${SERVER_HOST}
       - ZBX_LISTENIP=0.0.0.0
       - ZBX_LISTENPORT=10151
       - ZBX_PROXYMODE=0

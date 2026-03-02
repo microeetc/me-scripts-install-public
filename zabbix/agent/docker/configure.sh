@@ -202,14 +202,14 @@ ensure_structure
 generate_keys
 
 if [ "$ENABLE_PROXY" = true ]; then
-  echo -n "Hostname do Proxy: "
+  echo -n "Hostname do Proxy (Padrão SPKR - NOMECLIENTE-LOCL-HOSTNAME-PROXY):"
   read Proxy_Hostname < /dev/tty
 fi
 
 echo -n "IP do Servidor Proxy: "
 read Server_Host < /dev/tty
 
-echo -n "Host do Dispositivo: "
+echo -n "Host do Agent (Padrão SPKR - EMPR-LOCL-TP-HOSTNAME):"
 read Agent_Hostname < /dev/tty
 
 if [[ -z "$Server_Host" || -z "$Agent_Hostname" ]]; then

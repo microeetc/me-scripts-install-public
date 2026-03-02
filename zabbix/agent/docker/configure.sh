@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -e
+set -euo pipefail
 
 composeDir="/_docker/me-svc-zabbix-agent"
 composeFile="$composeDir/docker-compose.yml"
@@ -24,78 +24,80 @@ for arg in "$@"; do
 done
 
 # -------------------------------
-# Geração de chaves
-# -------------------------------
-AGENT_IDENTITY_KEY=$(openssl rand -hex 6)
-AGENT_PSK_KEY=$(openssl rand -hex 24)
-
-if [ "$ENABLE_PROXY" = true ]; then
-  PROXY_IDENTITY_KEY=$(openssl rand -hex 6)
-  PROXY_PSK_KEY=$(openssl rand -hex 24)
-fi
-
-# -------------------------------
-# Entrada interativa (sempre via tty)
+# Funções
 # -------------------------------
 
-if [ "$ENABLE_PROXY" = true ]; then
-  echo -n "Hostname do Proxy (Padrão SPKR - NOMECLIENTE-LOCL-HOSTNAME-PROXY): "
-  read Proxy_Hostname < /dev/tty
-fi
+ensure_structure() {
+  echo ">> Verificando estrutura..."
 
-echo -n "IP do Servidor Proxy: "
-read Server_Host < /dev/tty
+  mkdir -p "$composeDir"
+  mkdir -p "$composeDir/data/zabbix"
+  mkdir -p "$composeDir/data/zabbix/proxy/db"
+  mkdir -p "$composeDir/config/zabbix/externalscripts"
 
-echo -n "Host do Dispositivo (Padrão SPKR - EMPR-LOCL-TP-HOSTNAME): "
-read Agent_Hostname < /dev/tty
+  chmod -R 750 "$composeDir"
 
-# -------------------------------
-# Validação básica
-# -------------------------------
-if [ -z "$Server_Host" ] || [ -z "$Agent_Hostname" ]; then
-  echo "Erro: variáveis obrigatórias não informadas."
-  exit 1
-fi
+  echo ">> Estrutura validada."
+}
 
-if [ "$ENABLE_PROXY" = true ] && [ -z "$Proxy_Hostname" ]; then
-  echo "Erro: variáveis obrigatórias não informadas."
-  exit 1
-fi
+generate_keys() {
+  AGENT_IDENTITY_KEY=$(openssl rand -hex 6)
+  AGENT_PSK_KEY=$(openssl rand -hex 24)
 
-# -------------------------------
-# Criação do .env
-# -------------------------------
+  if [ "$ENABLE_PROXY" = true ]; then
+    PROXY_IDENTITY_KEY=$(openssl rand -hex 6)
+    PROXY_PSK_KEY=$(openssl rand -hex 24)
+  fi
+}
 
-# Zera o arquivo primeiro
-> "$dotEnv"
+create_env_file() {
+  if [[ -f "$dotEnv" ]]; then
+    echo ">> .env já existe, será sobrescrito."
+  else
+    echo ">> Criando .env"
+    touch "$dotEnv"
+  fi
 
-echo "SERVER_HOST=$Server_Host" >> "$dotEnv"
-echo "AGENT_HOST=$Agent_Hostname" >> "$dotEnv"
-echo "KEY_IDENTITY=$AGENT_IDENTITY_KEY" >> "$dotEnv"
-echo "KEY_PSK=$AGENT_PSK_KEY" >> "$dotEnv"
+  > "$dotEnv"
 
-echo "$AGENT_PSK_KEY" > "$composeDir/data/zabbix/tls.psk"
+  echo "SERVER_HOST=$Server_Host" >> "$dotEnv"
+  echo "AGENT_HOST=$Agent_Hostname" >> "$dotEnv"
+  echo "KEY_IDENTITY=$AGENT_IDENTITY_KEY" >> "$dotEnv"
+  echo "KEY_PSK=$AGENT_PSK_KEY" >> "$dotEnv"
 
-if [ "$ENABLE_PROXY" = true ]; then
-  echo "PROXY_HOSTNAME=$Proxy_Hostname" >> "$dotEnv"
-  echo "PROXY_KEY_IDENTITY=$PROXY_IDENTITY_KEY" >> "$dotEnv"
-  echo "PROXY_KEY_PSK=$PROXY_PSK_KEY" >> "$dotEnv"
+  if [ "$ENABLE_PROXY" = true ]; then
+    echo "PROXY_HOSTNAME=$Proxy_Hostname" >> "$dotEnv"
+    echo "PROXY_KEY_IDENTITY=$PROXY_IDENTITY_KEY" >> "$dotEnv"
+    echo "PROXY_KEY_PSK=$PROXY_PSK_KEY" >> "$dotEnv"
+  fi
+}
 
-  echo "$PROXY_PSK_KEY" > "$composeDir/data/zabbix/proxy_tls.psk"
-fi
+create_psk_files() {
+  echo "$AGENT_PSK_KEY" > "$composeDir/data/zabbix/tls.psk"
+  chmod 600 "$composeDir/data/zabbix/tls.psk"
 
+  if [ "$ENABLE_PROXY" = true ]; then
+    echo "$PROXY_PSK_KEY" > "$composeDir/data/zabbix/proxy_tls.psk"
+    chmod 600 "$composeDir/data/zabbix/proxy_tls.psk"
+  fi
+}
 
-# -------------------------------
-# Criação do docker-compose
-# -------------------------------
+create_compose_file() {
 
-if [ "$ENABLE_PROXY" = true ]; then
+  if [[ -f "$composeFile" ]]; then
+    echo ">> docker-compose.yml já existe, será sobrescrito."
+  else
+    echo ">> Criando docker-compose.yml"
+    touch "$composeFile"
+  fi
+
+  if [ "$ENABLE_PROXY" = true ]; then
 
 cat <<EOF > "$composeFile"
 services:
   meetc-zabbix-agent:
     container_name: meetc-zabbix-agent
-    image: zabbix/zabbix-agent2:7.2.10-alpine
+    image: zabbix/zabbix-agent2:7.2.15-alpine
     restart: always
     privileged: true
     user: root
@@ -129,7 +131,7 @@ services:
 
   zabbix-proxy:
     container_name: zabbix-proxy
-    image: zabbix/zabbix-proxy-sqlite3:7.2.10-alpine
+    image: zabbix/zabbix-proxy-sqlite3:7.2.15-alpine
     restart: always
     privileged: true
     network_mode: "host"
@@ -137,29 +139,21 @@ services:
     expose:
       - 10151
     volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
-      - ./config/zabbix/externalscripts:/usr/lib/zabbix/externalscripts
-      - ./data/zabbix/proxy/db:/var/lib/zabbix/db_data:rw
+      - ./data/zabbix/proxy/db:/var/lib/zabbix/db_data
       - ./data/zabbix/proxy_tls.psk:/var/lib/zabbix/tls.psk:ro
+      - ./config/zabbix/externalscripts:/usr/lib/zabbix/externalscripts
     environment:
-      - ZBX_SERVER_HOST=144.22.141.222:15151
+      - ZBX_SERVER_HOST=144.22.141.222
+      - ZBX_SERVER_PORT=15151
       - ZBX_HOSTNAME=\${PROXY_HOSTNAME}
-      - ZBX_LISTENIP=0.0.0.0
-      - ZBX_LISTENPORT=10151
       - ZBX_PROXYMODE=0
-      - ZBX_TIMEOUT=30
-      - ZBX_DEBUGLEVEL=3
-      - ZBX_CONFIGFREQUENCY=60
       - ZBX_TLSPSKFILE=/var/lib/zabbix/tls.psk
       - ZBX_TLSPSKIDENTITY=\${PROXY_KEY_IDENTITY}
-      - ZBX_TLSACCEPT=psk
       - ZBX_TLSCONNECT=psk
-      - ZBX_ENABLEREMOTECOMMANDS=1
-      - ZBX_LOGREMOTECOMMANDS=1
+      - ZBX_TLSACCEPT=psk
 EOF
 
-else
+  else
 
 cat <<EOF > "$composeFile"
 services:
@@ -197,47 +191,52 @@ services:
       - ZBX_TLSACCEPT=psk
 EOF
 
+  fi
+}
+
+# -------------------------------
+# Execução
+# -------------------------------
+
+ensure_structure
+generate_keys
+
+if [ "$ENABLE_PROXY" = true ]; then
+  echo -n "Hostname do Proxy: "
+  read Proxy_Hostname < /dev/tty
 fi
 
-echo "docker-compose.yml criado com sucesso."
+echo -n "IP do Servidor Proxy: "
+read Server_Host < /dev/tty
 
-# -------------------------------
-# Output final
-# -------------------------------
+echo -n "Host do Dispositivo: "
+read Agent_Hostname < /dev/tty
+
+if [[ -z "$Server_Host" || -z "$Agent_Hostname" ]]; then
+  echo "Erro: variáveis obrigatórias não informadas."
+  exit 1
+fi
+
+if [ "$ENABLE_PROXY" = true ] && [[ -z "$Proxy_Hostname" ]]; then
+  echo "Erro: Hostname do proxy não informado."
+  exit 1
+fi
+
+create_env_file
+create_psk_files
+create_compose_file
+
+echo ""
+echo "############################################################"
+echo "INSTALAÇÃO CONCLUÍDA"
+echo "############################################################"
+echo ""
 
 cat "$dotEnv"
 
-
 echo ""
+echo "Arquivos criados em: $composeDir"
 echo ""
-echo "###############################################################################"
-echo "###                    INSTALACAO CONCLUIDA COM SUCESSO!                    ###"
-echo "###############################################################################"
-echo ""
-echo "=== INFORMACOES PARA CONFIGURACAO NO ZABBIX SERVER ==="
-echo ""
-echo "--- PROXY ---"
-echo "  Nome do Proxy:      ${Proxy_Hostname}"
-echo "  PSK Identity:       ${PROXY_IDENTITY_KEY}"
-echo "  PSK Key:            ${PROXY_PSK_KEY}"
-echo ""
-echo "--- HOST AGENT ---"
-echo "  Nome do Host:       ${Agent_Hostname}"
-echo "  IP do Host:         ${Server_Host}"
-echo "  Porta de Conexao:   10150"
-echo "  PSK Identity:       ${AGENT_IDENTITY_KEY}"
-echo "  PSK Key:            ${AGENT_PSK_KEY}"
-echo ""
-echo "###############################################################################"
-echo ""
-echo ""
-echo "Logs disponiveis em:"
-echo "  - Proxy:   /var/log/zabbix/zabbix_proxy.log"
-echo "  - Agent2:  /var/log/zabbix/zabbix_agent2.log"
-echo ""
-echo "Comandos uteis:"
-echo "  systemctl status zabbix-proxy zabbix-agent2"
-echo "  journalctl -u zabbix-proxy -f"
-echo "  journalctl -u zabbix-agent2 -f"
-echo ""
+echo "Para subir os containers:"
+echo "cd $composeDir && docker compose up -d"
 echo ""

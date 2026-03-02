@@ -116,15 +116,15 @@ services:
     expose:
       - 10150
     environment:
-      - ZBX_SERVER_HOST=${SERVER_HOST}
+      - ZBX_SERVER_HOST=\${SERVER_HOST}
       - ZBX_SERVER_PORT=10151
       - ZBX_LISTENIP=0.0.0.0
       - ZBX_LISTENPORT=10150
-      - ZBX_HOSTNAME=${AGENT_HOST}
+      - ZBX_HOSTNAME=\${AGENT_HOST}
       - ZBX_TIMEOUT=30
       - ZBX_DEBUGLEVEL=3
       - ZBX_TLSPSKFILE=/var/lib/zabbix/tls.psk
-      - ZBX_TLSPSKIDENTITY=${KEY_IDENTITY}
+      - ZBX_TLSPSKIDENTITY=\${KEY_IDENTITY}
       - ZBX_TLSCONNECT=psk
       - ZBX_TLSACCEPT=psk
       - ZBX_ENABLEREMOTECOMMANDS=1
@@ -144,7 +144,7 @@ services:
       - ./config/zabbix/externalscripts:/usr/lib/zabbix/externalscripts
     environment:
       - ZBX_SERVER_HOST=144.22.141.222:15151
-      - ZBX_HOSTNAME=${SERVER_HOST}
+      - ZBX_HOSTNAME=\${SERVER_HOST}
       - ZBX_LISTENIP=0.0.0.0
       - ZBX_LISTENPORT=10151
       - ZBX_PROXYMODE=0
@@ -152,7 +152,7 @@ services:
       - ZBX_DEBUGLEVEL=3
       - ZBX_CONFIGFREQUENCY=60
       - ZBX_TLSPSKFILE=/var/lib/zabbix/tls.psk
-      - ZBX_TLSPSKIDENTITY=${PROXY_KEY_IDENTITY}
+      - ZBX_TLSPSKIDENTITY=\${PROXY_KEY_IDENTITY}
       - ZBX_TLSACCEPT=psk
       - ZBX_TLSCONNECT=psk
       - ZBX_ENABLEREMOTECOMMANDS=1

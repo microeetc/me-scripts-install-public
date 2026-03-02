@@ -24,14 +24,14 @@ wget -qO- https://raw.githubusercontent.com/microeetc/me-scripts-install-public/
 # Configura o agent.conf do zabbix instalado como serviço
 wget -qO- https://raw.githubusercontent.com/microeetc/me-scripts-install-public/master/zabbix/agent/service/configure.sh | sh
 
-# Configura o .env do zabbix agent configurado como docker compose
-# TODO: Incluir no script a cópia do docker-compose.yml via raw.githubusercontent.com
+# Cria o docker-compose.yml e configura o .env com as informações solicitadas para o Zabbix Agent
 wget -qO- https://raw.githubusercontent.com/microeetc/me-scripts-install-public/master/zabbix/agent/docker/configure.sh | sh
 ```
 
 ## Zabbix Proxy
 ```bash
-# TODO: Fazer procedimento para instalação do agent e proxy
+# Cria o docker-compose.yml e configura o .env com as informações solicitadas para o Zabbix Proxy e Zabbix Agent
+wget -qO- https://raw.githubusercontent.com/microeetc/me-scripts-install-public/master/zabbix/agent/docker/configure.sh | bash -s -- --proxy
 ```
 
 ## Zabbix no UDM

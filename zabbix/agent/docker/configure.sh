@@ -225,6 +225,8 @@ fi
 create_env_file
 create_psk_files
 create_compose_file
+chown -r 1997:1997 "$composeDir/data/zabbix/proxy"
+
 
 echo ""
 echo "##########################################################################" 

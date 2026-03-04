@@ -147,7 +147,7 @@ services:
 
     environment:
       - ZBX_SERVER_HOST=144.22.141.222:15151
-      - ZBX_HOSTNAME=\${Proxy_Hostname}
+      - ZBX_HOSTNAME=\${PROXY_HOSTNAME}
       - ZBX_LISTENIP=0.0.0.0
       - ZBX_LISTENPORT=10151
       - ZBX_PROXYMODE=0

@@ -9,8 +9,10 @@ Repositório público para permitir download e execução de qualquer dispositiv
 # Setup Inicial
 wget -qO- https://raw.githubusercontent.com/microeetc/me-scripts-install-public/master/ubuntu/setup.sh | sh
 
-# Domain Join (requer revisão)
-wget -qO- https://raw.githubusercontent.com/microeetc/me-scripts-install-public/master/ubuntu/domain-join-ubuntu2204.sh | bash -s -- --domain domain.local --user username --groups "linuxadmins grexample2"
+# Domain Join
+wget https://raw.githubusercontent.com/microeetc/me-scripts-install-public/master/ubuntu/domain-join-ubuntu2204_NEW.sh
+chmod +x domain-join-ubuntu2204_NEW.sh
+./domain-join-ubuntu2204_NEW.sh --domain <domain.local> --user <userlogim> --groups "<grupos_acesso_ssh>"
 ```
 
 ## Docker (Qualquer distribuição)
@@ -21,16 +23,16 @@ wget -qO- https://raw.githubusercontent.com/microeetc/me-scripts-install-public/
 
 ## Zabbix Agent
 ```bash
-# Configura o agent.conf do zabbix instalado como *serviço*
+# Configura o agent.conf do zabbix instalado como SERVIÇO
 wget -qO- https://raw.githubusercontent.com/microeetc/me-scripts-install-public/master/zabbix/agent/service/configure.sh | sh
 
-# Cria o docker-compose.yml e configura o .env com as informações solicitadas para o Zabbix Agent
+# Cria o docker-compose.yml e configura o .env com as informações solicitadas para o Zabbix Agent em DOCKER
 wget -qO- https://raw.githubusercontent.com/microeetc/me-scripts-install-public/master/zabbix/agent/docker/configure.sh | sh
 ```
 
 ## Zabbix Proxy
 ```bash
-# Cria o docker-compose.yml e configura o .env com as informações solicitadas para o Zabbix Proxy e Zabbix Agent
+# Cria o docker-compose.yml e configura o .env com as informações solicitadas para o Zabbix Proxy e Zabbix Agent em DOCKER
 wget -qO- https://raw.githubusercontent.com/microeetc/me-scripts-install-public/master/zabbix/agent/docker/configure.sh | bash -s -- --proxy
 ```
 

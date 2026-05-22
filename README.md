@@ -10,11 +10,10 @@ Repositório público para permitir download e execução de qualquer dispositiv
 wget -qO- https://raw.githubusercontent.com/microeetc/me-scripts-install-public/master/ubuntu/setup.sh | sh
 
 # Domain Join
-```bash
 wget https://raw.githubusercontent.com/microeetc/me-scripts-install-public/master/ubuntu/domain-join-ubuntu2204.sh
-chmod +x domain-join-ubuntu2204_NEW.sh
-./domain-join-ubuntu2204_NEW.sh --domain <domain.local> --user <userlogim> --groups "<grupos_acesso_ssh>"
-```
+chmod +x domain-join-ubuntu2204.sh
+./domain-join-ubuntu2204.sh --domain <domain.local> --user <userlogim> --groups "<grupos_acesso_ssh>"
+
 ```
 
 ## Docker (Qualquer distribuição)

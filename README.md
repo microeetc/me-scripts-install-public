@@ -21,7 +21,7 @@ wget -qO- https://raw.githubusercontent.com/microeetc/me-scripts-install-public/
 
 ## Zabbix Agent
 ```bash
-# Configura o agent.conf do zabbix instalado como serviço
+# Configura o agent.conf do zabbix instalado como *serviço*
 wget -qO- https://raw.githubusercontent.com/microeetc/me-scripts-install-public/master/zabbix/agent/service/configure.sh | sh
 
 # Cria o docker-compose.yml e configura o .env com as informações solicitadas para o Zabbix Agent

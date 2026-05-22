@@ -28,7 +28,7 @@ chmod +x ubuntu2204.sh
 
 #### 3. Executar Script
 
-Ideal para automação ou scripts de deploy:
+Alterar as variaveis em <> para os valores reais:
 
 ```bash
 sudo ./domain-join-ubuntu2204.sh --domain <domain.local> --user <username> --groups "<admin_linux_grupos1> <admin_linux_grupos2>"

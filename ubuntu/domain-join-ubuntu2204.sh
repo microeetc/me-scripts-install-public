@@ -132,8 +132,8 @@ sudo apt install -y \
 
 # 6. Ingressar no Domínio
 echo -e "\n${YELLOW}Ingressando no domínio...${NC}"
-echo
-echo sudo realm -U "$AD_USER" join "$AD_DOMAIN"
+
+sudo realm join -U "$AD_USER" "$AD_DOMAIN"
 
 if [ $? -ne 0 ]; then
     echo -e "${RED}Erro no 'realm join'. Verifique DNS, Horário e Senha.${NC}"
@@ -194,8 +194,15 @@ for group in $AD_GROUPS; do
     sudo chmod 0440 "$SUDO_FILE"
 done
 
-echo -e "\n${GREEN}=====================================================${NC}"
-echo -e "${GREEN}  SUCESSO: A VM foi ingressada em $AD_DOMAIN  ${NC}"
-echo -e "${GREEN}=====================================================${NC}"
+# Verificação pós-join
+if realm list | grep -q "$AD_DOMAIN"; then
+    echo -e "\n${GREEN}=====================================================${NC}"
+    echo -e "${GREEN}SUCESSO: Domínio confirmado via 'realm list'${NC}"
+    echo -e "${GREEN}=====================================================${NC}"
 
-
+else
+    echo -e "\n${GREEN}=====================================================${NC}"
+    echo -e "${RED}FALHA: Domínio não encontrado em 'realm list'${NC}"
+    echo -e "${GREEN}=====================================================${NC}"
+    exit 1
+fi

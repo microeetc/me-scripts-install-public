@@ -12,37 +12,28 @@ Este script automatiza o processo de ingressar uma máquina Linux Ubuntu 24.04 e
 
 ---
 
-### Exemplos de Execução
+### Execução
 
-#### 1. Modo Interativo
+#### 1. Baixe o script
 
-Ideal para execuções manuais. O script solicitará as informações durante o processo:
+```bash
+wget https://raw.githubusercontent.com/microeetc/me-scripts-install-public/master/ubuntu/domain-join-ubuntu2204.sh
+```
+
+#### 2. Liberar as permissões
 
 ```bash
 chmod +x ubuntu2204.sh
-sudo ./ubuntu2204.sh
-
 ```
 
-#### 2. Via Parâmetros (Linha de Comando)
+#### 3. Executar Script
 
 Ideal para automação ou scripts de deploy:
 
 ```bash
-sudo ./ubuntu2204.sh --domain domain.local --user username --groups "linuxadmins grexample2"
+sudo ./domain-join-ubuntu2204.sh --domain <domain.local> --user <username> --groups "<admin_linux_grupos1> <admin_linux_grupos2>"
 
 ```
-
-#### 3. Execução Remota (via Pipe)
-
-Você pode executar o script diretamente de um repositório remoto sem precisar baixá-lo manualmente. Para passar argumentos via pipe, use a sintaxe `-s --`:
-
-```bash
-wget -qO- https://raw.githubusercontent.com/microeetc/me-scripts-install-public/master/domain-join/ubuntu2204.sh | bash -s -- --domain domain.local --user username --groups "linuxadmins grexample2"
-
-```
-
----
 
 ### Requisitos Técnicos
 

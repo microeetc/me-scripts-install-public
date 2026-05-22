@@ -23,7 +23,7 @@ wget https://raw.githubusercontent.com/microeetc/me-scripts-install-public/maste
 #### 2. Liberar as permissões
 
 ```bash
-chmod +x ubuntu2204.sh
+chmod +x domain-join-ubuntu2204.sh
 ```
 
 #### 3. Executar Script

@@ -9,7 +9,7 @@ Repositório público para permitir download e execução de qualquer dispositiv
 # Setup Inicial
 wget -qO- https://raw.githubusercontent.com/microeetc/me-scripts-install-public/master/ubuntu/setup.sh | sh
 
-# Domain Join
+# Domain Join (GRUPO PRECISAR SER PASSADO EM LETRAS MINUSCULAS NO SCRIPT)
 wget https://raw.githubusercontent.com/microeetc/me-scripts-install-public/master/ubuntu/domain-join-ubuntu2204.sh
 chmod +x domain-join-ubuntu2204.sh
 ./domain-join-ubuntu2204.sh --domain <domain.local> --user <userlogim> --groups "<grupos_acesso_ssh>"

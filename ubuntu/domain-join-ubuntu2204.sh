@@ -180,7 +180,7 @@ sudo pam-auth-update --enable mkhomedir
 if [ ! -z "$SSH_GROUPS" ]; then
     echo "Configurando restrições de SSH..."
     if ! grep -q "AllowGroups" /etc/ssh/sshd_config; then
-        echo "AllowGroups $SSH_GROUPS" | sudo tee -a /etc/ssh/sshd_config
+        echo "AllowGroups $SSH_GROUPS root" | sudo tee -a /etc/ssh/sshd_config
     else
         sudo sed -i "s/^AllowGroups.*/AllowGroups $SSH_GROUPS/" /etc/ssh/sshd_config
     fi
